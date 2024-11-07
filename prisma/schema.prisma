@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model administrador_sistema {
+  id       String   @id @default(uuid())
+  nome     String
+  senha    String
+  email    String
+  telefone String
+  Fazenda  Fazenda[]
+}
+
+model User {
+  id               String  @id @default(uuid())
+  email            String  @unique
+  telefone         String  @unique
+  eh_administrador Boolean
+  nome             String
+  senha            String
+  id_fazenda       String
+  fazenda          Fazenda @relation(fields: [id_fazenda], references: [id])
+}
+
+model Fazenda {
+  id           String                @id @default(uuid())
+  nome         String
+  cidade       String
+  estado       String
+  proprietario String
+  id_adm       String
+  adm          administrador_sistema @relation(fields: [id_adm], references: [id])
+  Lote         Lote[]
+  User         User[]
+}
+
+model Receita {
+  id          String       @id @default(uuid())
+  id_dieta    String
+  id_alimento Int
+  quantidade  Float
+  alimento    Alimento @relation(fields: [id_alimento], references: [id])
+  dieta       Dieta    @relation(fields: [id_dieta], references: [id])
+}
+
+model Dieta {
+  id_lote     String
+  id          String       @id @default(uuid())
+  eh_atual    Boolean
+  Analise     Analise[]
+  Receita     Receita[]
+  lote        Lote     @relation(fields: [id_lote], references: [id])
+}
+
+model Alimento {
+  id         Int     @id @default(autoincrement())
+  nome       String
+  descricao  String?
+  Receita    Receita[]
+}
+
+model Lote {
+  id                 String       @id @default(uuid())
+  nome               String
+  quantidade_animais Int
+  tamanho            Int
+  id_fazenda         String
+  fazenda            Fazenda      @relation(fields: [id_fazenda], references: [id])
+  Analise            Analise[]
+  Dieta              Dieta[]
+}
+
+model Analise {
+  id            String   @id @default(uuid())
+  imagem        String?
+  resultado     Float
+  disposicao    String
+  manejo        String
+  comportamento String
+  clima         String
+  data          DateTime
+  id_lote       String
+  id_dieta      String
+  Dieta         Dieta    @relation(fields: [id_dieta], references: [id])
+  lote          Lote     @relation(fields: [id_lote], references: [id])
+}
